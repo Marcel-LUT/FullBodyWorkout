@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">FullBodyWorkout</string>
+
+    <string-array name="exercises">
+        <item>Archer Push-Up</item>
+        <item>Dips on Bar</item>
+        <item>Pull Ups on Bar</item>
+        <item>Pike Push Up</item>
+        <item>Star Crunches</item>
+        <item>Plank Hold</item>
+        <item>Pistol Squats</item>
+    </string-array>
+
+    <string-array name="muscles">
+        <item>Chest, Triceps, Shoulders</item>
+        <item>Triceps, Chest, Shoulders</item>
+        <item>Upper Back, Bizeps, Lowe Back</item>
+        <item>Shoulder, Triceps</item>
+        <item>Core</item>
+        <item>Lower Back, Core</item>
+        <item>Legs, Core</item>
+    </string-array>
+
+    <string-array name="Repetitions">
+        <item>10xL / 10xR</item>
+        <item>10</item>
+        <item>10</item>
+        <item>12</item>
+        <item>15</item>
+        <item>60 sec</item>
+        <item>12xL / 10xR</item>
+    </string-array>
+    <string name="title_activity_cali_maps">Map</string>
+
+
+</resources>
