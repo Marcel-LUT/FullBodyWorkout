@@ -14,8 +14,11 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +61,7 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
 
     //widgets
     private EditText mSearchText;
+    private ImageView mGps;
 
     //variables
     private GoogleMap mMap;
@@ -71,9 +75,14 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
         Log.d(TAG, "onMapReady: map is ready");
         mMap = googleMap;
 
+
         if(mLocationPermissionsGranted){
             getDeviceLocation();
-
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
             searchExecute();
@@ -88,7 +97,7 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cali_maps);
         mSearchText = (EditText) findViewById(R.id.input_search);
-
+        mGps = (ImageView) findViewById(R.id.ic_gps);
         getLocationPermission();
 
     }
@@ -104,13 +113,22 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
                         || keyEvent.getAction() == KeyEvent.ACTION_DOWN
                         || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER){
 
-                    //search
+                    //execute our method for searching
                     geoLocate();
                 }
 
                 return false;
             }
         });
+
+        mGps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: clicked gps icon");
+                getDeviceLocation();
+            }
+        });
+        hideSoftKeyboard();
     }
 
     private void geoLocate(){
@@ -130,8 +148,10 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
             Address address = list.get(0);
 
             Log.d(TAG, "geoLocate: found a location: " + address.toString());
+            //Toast.makeText(this, address.toString(), Toast.LENGTH_SHORT).show();
 
-
+            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), DEFAULT_ZOOM,
+                    address.getAddressLine(0));
         }
     }
 
@@ -153,7 +173,8 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
                             Location currentLocation = (Location) task.getResult();
 
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM);
+                                    DEFAULT_ZOOM,
+                                    "My Location");
 
                         }else{
                             Log.d(TAG, "onComplete: current location is null");
@@ -168,9 +189,17 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
     }
 
 
-    private void moveCamera(LatLng latLng, float zoom){
+    private void moveCamera(LatLng latLng, float zoom, String title){
         Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+        if(!title.equals("My Location")){
+            MarkerOptions options = new MarkerOptions()
+                    .position(latLng)
+                    .title(title);
+            mMap.addMarker(options);
+        }
+
     }
 
     private void initMap(){
@@ -226,6 +255,8 @@ public class CaliMapsActivity extends FragmentActivity implements OnMapReadyCall
     }
 
 
-
+    private void hideSoftKeyboard(){
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
 
 }
